@@ -28,8 +28,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 type Record struct {
 	Type                 int64    `protobuf:"varint,1,opt,name=type" json:"type"`
 	Crc                  uint32   `protobuf:"varint,2,opt,name=crc" json:"crc"`
-	CreatedAt            int64   `protobuf:"bytes,3,opt,name=created_at" json:"time"`
-	Data                 []byte   `protobuf:"bytes,4,opt,name=data" json:"data,omitempty"`
+	Data                 []byte   `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
+	CreatedAt            int64    `protobuf:"varint,4,opt,name=created_at" json:"createdAt"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
