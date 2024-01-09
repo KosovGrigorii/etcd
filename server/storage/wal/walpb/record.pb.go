@@ -28,7 +28,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 type Record struct {
 	Type                 int64    `protobuf:"varint,1,opt,name=type" json:"type"`
 	Crc                  uint32   `protobuf:"varint,2,opt,name=crc" json:"crc"`
-	Data                 []byte   `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
+	CreatedAt            int64   `protobuf:"bytes,3,opt,name=created_at" json:"time"`
+	Data                 []byte   `protobuf:"bytes,4,opt,name=data" json:"data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -170,6 +171,9 @@ func (m *Record) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
+	i = encodeVarintRecord(dAtA, i, uint64(m.CreatedAt))
+	i--
+	dAtA[i] = 0x20
 	i = encodeVarintRecord(dAtA, i, uint64(m.Crc))
 	i--
 	dAtA[i] = 0x10
@@ -243,6 +247,7 @@ func (m *Record) Size() (n int) {
 	_ = l
 	n += 1 + sovRecord(uint64(m.Type))
 	n += 1 + sovRecord(uint64(m.Crc))
+	n += 1 + sovRecord(uint64(m.CreatedAt))
 	if m.Data != nil {
 		l = len(m.Data)
 		n += 1 + l + sovRecord(uint64(l))
@@ -378,6 +383,25 @@ func (m *Record) Unmarshal(dAtA []byte) error {
 				m.Data = []byte{}
 			}
 			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
+			}
+			m.CreatedAt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRecord
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CreatedAt |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipRecord(dAtA[iNdEx:])
