@@ -598,8 +598,8 @@ func (s *EtcdServer) purgeFile() {
 	var dberrc, serrc, werrc <-chan error
 	var dbdonec, sdonec, wdonec <-chan struct{}
 	if s.Cfg.MaxSnapFiles > 0 {
-		dbdonec, dberrc = fileutil.PurgeFileWithDoneNotify(lg, s.Cfg.SnapDir(), "snap.db", s.Cfg.MaxSnapFiles, purgeFileInterval, s.stopping)
-		sdonec, serrc = fileutil.PurgeFileWithDoneNotify(lg, s.Cfg.SnapDir(), "snap", s.Cfg.MaxSnapFiles, purgeFileInterval, s.stopping)
+		dbdonec, dberrc = fileutil.PurgeFileWithoutFlock(lg, s.Cfg.SnapDir(), "snap.db", s.Cfg.MaxSnapFiles, purgeFileInterval, s.stopping)
+		sdonec, serrc = fileutil.PurgeFileWithoutFlock(lg, s.Cfg.SnapDir(), "snap", s.Cfg.MaxSnapFiles, purgeFileInterval, s.stopping)
 	}
 	if s.Cfg.MaxWALFiles > 0 {
 		wdonec, werrc = fileutil.PurgeFileWithDoneNotify(lg, s.Cfg.WALDir(), "wal", s.Cfg.MaxWALFiles, purgeFileInterval, s.stopping)
@@ -1001,6 +1001,7 @@ func (s *EtcdServer) applySnapshot(ep *etcdProgress, toApply *toApply) {
 	// wait for raftNode to persist snapshot onto the disk
 	<-toApply.notifyc
 
+	// gofail: var applyBeforeOpenSnapshot struct{}
 	newbe, err := serverstorage.OpenSnapshotBackend(s.Cfg, s.snapshotter, toApply.snapshot, s.beHooks)
 	if err != nil {
 		lg.Panic("failed to open snapshot backend", zap.Error(err))
