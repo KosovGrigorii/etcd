@@ -166,7 +166,7 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte) (*WAL, error) {
 	if err = w.saveCrc(0); err != nil {
 		return nil, err
 	}
-	if err = w.encoder.encode(&walpb.Record{Type: MetadataType, Data: metadata}); err != nil {
+	if err = w.encoder.encode(&walpb.Record{Type: MetadataType, Data: metadata, CreatedAt: time.Now().Unix()}); err != nil {
 		return nil, err
 	}
 	if err = w.SaveSnapshot(walpb.Snapshot{}); err != nil {
@@ -748,7 +748,7 @@ func (w *WAL) cut() error {
 		return err
 	}
 
-	if err = w.encoder.encode(&walpb.Record{Type: MetadataType, Data: w.metadata}); err != nil {
+	if err = w.encoder.encode(&walpb.Record{Type: MetadataType, Data: w.metadata, CreatedAt: time.Now().Unix()}); err != nil {
 		return err
 	}
 
@@ -905,7 +905,7 @@ func (w *WAL) Close() error {
 func (w *WAL) saveEntry(e *raftpb.Entry) error {
 	// TODO: add MustMarshalTo to reduce one allocation.
 	b := pbutil.MustMarshal(e)
-	rec := &walpb.Record{Type: EntryType, Data: b}
+	rec := &walpb.Record{Type: EntryType, Data: b, CreatedAt: time.Now().Unix()}
 	if err := w.encoder.encode(rec); err != nil {
 		return err
 	}
@@ -919,7 +919,7 @@ func (w *WAL) saveState(s *raftpb.HardState) error {
 	}
 	w.state = *s
 	b := pbutil.MustMarshal(s)
-	rec := &walpb.Record{Type: StateType, Data: b}
+	rec := &walpb.Record{Type: StateType, Data: b, CreatedAt: time.Now().Unix()}
 	return w.encoder.encode(rec)
 }
 
@@ -971,7 +971,7 @@ func (w *WAL) SaveSnapshot(e walpb.Snapshot) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	rec := &walpb.Record{Type: SnapshotType, Data: b}
+	rec := &walpb.Record{Type: SnapshotType, Data: b, CreatedAt: time.Now().Unix()}
 	if err := w.encoder.encode(rec); err != nil {
 		return err
 	}
@@ -983,7 +983,7 @@ func (w *WAL) SaveSnapshot(e walpb.Snapshot) error {
 }
 
 func (w *WAL) saveCrc(prevCrc uint32) error {
-	return w.encoder.encode(&walpb.Record{Type: CrcType, Crc: prevCrc})
+	return w.encoder.encode(&walpb.Record{Type: CrcType, Crc: prevCrc, CreatedAt: time.Now().Unix()})
 }
 
 func (w *WAL) tail() *fileutil.LockedFile {

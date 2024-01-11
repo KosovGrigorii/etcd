@@ -15,6 +15,7 @@ message Record {
 	optional int64 type  = 1 [(gogoproto.nullable) = false];
 	optional uint32 crc  = 2 [(gogoproto.nullable) = false];
 	optional bytes data  = 3;
+	optional int64 created_at  = 4 [(gogoproto.nullable) = false];
 }
 
 // Keep in sync with raftpb.SnapshotMetadata.
