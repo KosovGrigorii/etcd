@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/benbjohnson/clock"
+	"github.com/jonboulle/clockwork"
 
 	"go.uber.org/zap"
 
@@ -95,13 +95,13 @@ type WAL struct {
 	locks []*fileutil.LockedFile // the locked files the WAL holds (the name is increasing)
 	fp    *filePipeline
 
-	clock clock.Clock
+	clock clockwork.Clock
 }
 
 // Create creates a WAL ready for appending records. The given metadata is
 // recorded at the head of each WAL file, and can be retrieved with ReadAll
 // after the file is Open.
-func Create(lg *zap.Logger, dirpath string, metadata []byte, walClock ...clock.Clock) (*WAL, error) {
+func Create(lg *zap.Logger, dirpath string, metadata []byte, walClock ...clockwork.Clock) (*WAL, error) {
 	if Exist(dirpath) {
 		return nil, os.ErrExist
 	}
@@ -165,7 +165,7 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte, walClock ...clock.C
 	if walClock != nil {
 		w.clock = walClock[0]
 	} else {
-		w.clock = clock.New()
+		w.clock = clockwork.NewRealClock()
 	}
 
 	w.encoder, err = newFileEncoder(f.File, 0)
@@ -364,7 +364,7 @@ func openAtIndex(lg *zap.Logger, dirpath string, snap walpb.Snapshot, write bool
 		decoder:   NewDecoder(rs...),
 		readClose: closer,
 		locks:     ls,
-		clock:     clock.New(),
+		clock:     clockwork.NewRealClock(),
 	}
 
 	if write {

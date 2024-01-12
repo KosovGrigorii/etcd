@@ -3,7 +3,6 @@ module go.etcd.io/etcd/server/v3
 go 1.21
 
 require (
-	github.com/benbjohnson/clock v1.3.5
 	github.com/coreos/go-semver v0.3.1
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dustin/go-humanize v1.0.1
